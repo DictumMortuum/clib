@@ -1,15 +1,12 @@
 #ifndef BITMAP__
 #define BITMAP__
 
-#define BIT (8*sizeof(byte))
+#define BIT (8*sizeof(unsigned char))
 #define BITMAP_NOTFOUND -1
 
-typedef enum{false=0, true} bool;
-typedef unsigned char byte;
-
-bool bitmapGet   (byte *, int);
-void bitmapSet   (byte *, int);
-void bitmapReset (byte *, int);
-int  bitmapSearch(byte *, bool, int, int);
+bool bitmapGet   (unsigned char *, int);
+void bitmapSet   (unsigned char *, int);
+void bitmapReset (unsigned char *, int);
+int  bitmapSearch(unsigned char *, int, int, int);
 
 #endif

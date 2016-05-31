@@ -1,27 +1,27 @@
 #include "bitmap.h"
 
-static bool get  (byte,   byte);
-static void set  (byte *, byte);
-static void reset(byte *, byte);
+static int  get  (unsigned char,   int);
+static void set  (unsigned char *, int);
+static void reset(unsigned char *, int);
 
 /* CAREFUL WITH pos AND BITMAP SIZE! */
 
-bool bitmapGet(byte *bitmap, int pos) {
+int bitmapGet(unsigned char *bitmap, int pos) {
 /* gets the value of the bit at pos */
     return get(bitmap[pos/BIT], pos%BIT);
 }
 
-void bitmapSet(byte *bitmap, int pos) {
+void bitmapSet(unsigned char *bitmap, int pos) {
 /* sets bit at pos to 1 */
     set(&bitmap[pos/BIT], pos%BIT);
 }
 
-void bitmapReset(byte *bitmap, int pos) {
+void bitmapReset(unsigned char *bitmap, int pos) {
 /* sets bit at pos to 0 */
     reset(&bitmap[pos/BIT], pos%BIT);
 }
 
-int bitmapSearch(byte *bitmap, bool n, int size, int start) {
+int bitmapSearch(unsigned char *bitmap, int n, int size, int start) {
 /* Finds the first n value in bitmap after start */
 /* size is the Bitmap size in bytes */
     int i;
@@ -32,18 +32,18 @@ int bitmapSearch(byte *bitmap, bool n, int size, int start) {
     return BITMAP_NOTFOUND;
 }
 
-static bool get(byte a, byte pos) {
+static int get(unsigned char a, int pos) {
 /* pos is something from 0 to 7*/
     return (a >> pos) & 1;
 }
 
-static void set(byte *a, byte pos) {
+static void set(unsigned char *a, int pos) {
 /* pos is something from 0 to 7*/
 /* sets bit to 1 */
     *a |= 1 << pos;
 }
 
-static void reset(byte *a, byte pos) {
+static void reset(unsigned char *a, int pos) {
 /* pos is something from 0 to 7*/
 /* sets bit to 0 */
     *a &= ~(1 << pos);
