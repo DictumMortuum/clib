@@ -36,20 +36,20 @@ int bitmapSearch(unsigned char *bitmap, int n, int size, int start)
 }
 
 static int get(unsigned char a, int pos)
-/* pos is something from 0 to 7*/
+/* pos is  value between [0, CHAR_BIT) */
 {
     return (a >> pos) & 1;
 }
 
 static void set(unsigned char *a, int pos)
-/* pos is something from 0 to 7*/
+/* pos is  value between [0, CHAR_BIT) */
 /* sets bit to 1 */
 {
     *a |= 1 << pos;
 }
 
 static void reset(unsigned char *a, int pos)
-/* pos is something from 0 to 7*/
+/* pos is  value between [0, CHAR_BIT) */
 /* sets bit to 0 */
 {
   *a &= ~(1 << pos);
