@@ -1,5 +1,5 @@
-#ifndef BITMAP__
-#define BITMAP__
+#ifndef CLIB_BITMAP
+#define CLIB_BITMAP
 
 #define BIT (8*sizeof(unsigned char))
 #define BITMAP_NOTFOUND -1
