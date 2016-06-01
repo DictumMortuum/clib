@@ -1,5 +1,5 @@
-#ifndef EXT_SORT_DEFINE__
-#define EXT_SORT_DEFINE__
+#ifndef CLIB_EXTSORT
+#define CLIB_EXTSORT
 
 #define BLOCKSIZE 512
 #define SORT_FILE_EXISTS -1
@@ -10,7 +10,5 @@
 #define SORT_FILE_CLOSE -6
 #define SORT_OK 1
 #define SORT_FILE_DESTROY -7
-
-typedef enum {false, true} bool;
 
 #endif

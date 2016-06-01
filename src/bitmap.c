@@ -1,56 +1,68 @@
-#include <limits.h>
 #include "bitmap.h"
+#include <stdlib.h>
+#include <stdio.h>
 
-static int  get  (unsigned char,   int);
-static void set  (unsigned char *, int);
-static void reset(unsigned char *, int);
+/* bitwise functions */
+static bool get (int, int);
+static void set (int *, int);
+static void reset (int *, int);
 
-int bitmapGet(unsigned char *bitmap, int pos)
-/* gets the value of the bit at pos */
+/* bitmap functions */
+static bool bitmap_get (clib_bitmap *, int);
+static void bitmap_set (clib_bitmap *, int);
+static void bitmap_reset (clib_bitmap *, int);
+
+clib_bitmap *clib_bitmap_init (uint64_t size)
+/* Creates an empty bitmap with @size integers */
 {
-    return get(bitmap[pos/CHAR_BIT], pos%CHAR_BIT);
+  clib_bitmap *temp = (clib_bitmap *) calloc(1, sizeof(clib_bitmap));
+  temp->map = (int *) calloc(size, sizeof(int));
+  temp->size = size;
+  temp->get = &bitmap_get;
+  temp->set = &bitmap_set;
+  temp->reset = &bitmap_reset;
+  return temp;
 }
 
-void bitmapSet(unsigned char *bitmap, int pos)
-/* sets bit at pos to 1 */
+void clib_bitmap_free (clib_bitmap *bitmap)
+/* Destroys the @bitmap */
 {
-    set(&bitmap[pos/CHAR_BIT], pos%CHAR_BIT);
+  free(bitmap->map);
+  free(bitmap);
 }
 
-void bitmapReset(unsigned char *bitmap, int pos)
-/* sets bit at pos to 0 */
+static bool bitmap_get (clib_bitmap *self, int n)
+/* Returns the value of the @n'th bit of the bitmap */
 {
-    reset(&bitmap[pos/CHAR_BIT], pos%CHAR_BIT);
+  return get(self->map[n/WORD_BIT], n%WORD_BIT);
 }
 
-int bitmapSearch(unsigned char *bitmap, int n, int size, int start)
-/* Finds the first n value in bitmap after start */
-/* size is the Bitmap size in bytes */
+static void bitmap_set (clib_bitmap *self, int n)
+/* Sets the @n'th bit of the bitmap to true */
 {
-    int i;
-    /* size is now the Bitmap size in bits */
-    for(i = start+1, size *= CHAR_BIT; i < size; i++)
-        if(bitmapGet(bitmap,i) == n)
-            return i;
-    return -1;
+  set(&self->map[n/WORD_BIT], n%WORD_BIT);
 }
 
-static int get(unsigned char a, int pos)
-/* pos is  value between [0, CHAR_BIT) */
+static void bitmap_reset (clib_bitmap *self, int n)
+/* Sets the @n'th bit of the bitmap to false */
 {
-    return (a >> pos) & 1;
+  reset(&self->map[n/WORD_BIT], n%WORD_BIT);
 }
 
-static void set(unsigned char *a, int pos)
-/* pos is  value between [0, CHAR_BIT) */
-/* sets bit to 1 */
+static bool get (int byte, int bit)
+/* Returns the value of @byte at @bit */
 {
-    *a |= 1 << pos;
+  return (byte >> bit) & 1;
 }
 
-static void reset(unsigned char *a, int pos)
-/* pos is  value between [0, CHAR_BIT) */
-/* sets bit to 0 */
+static void set (int *byte, int bit)
+/* Sets @byte's @bit to 1 */
 {
-  *a &= ~(1 << pos);
+  *byte |= 1 << bit;
+}
+
+static void reset (int *byte, int bit)
+/* Sets @byte's @bit to 0 */
+{
+  *byte &= ~(1 << bit);
 }
