@@ -1,10 +1,13 @@
-#ifndef CLIB_BLOCK
-#define CLIB_BLOCK
-
+#pragma once
 #include <stdio.h>
+#include <stdbool.h>
 
-int block_read (FILE *stream, char *buffer, const unsigned int n, const unsigned int size);
-int block_write (FILE *stream, const char *buffer, const unsigned int n, const unsigned int size);
-int block_allocate (char **bufferPtr, const unsigned int bufferSize, const void *objPtr, const unsigned int objSize)
+typedef struct clib_block {
+  bool (*get)(void *buffer, size_t size, size_t count, FILE *stream);
+  bool (*set)(const void *buffer, size_t size, size_t count, FILE *stream);
+  bool (*geti)(void *buffer, size_t size, size_t count, FILE *stream);
+  bool (*seti)(const void *buffer, size_t size, size_t count, FILE *stream);
+} clib_block;
 
-#endif
+clib_block *clib_block_init(void);
+void clib_block_free(clib_block *);

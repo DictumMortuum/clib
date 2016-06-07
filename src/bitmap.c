@@ -15,8 +15,8 @@ static void bitmap_reset (clib_bitmap *, int);
 clib_bitmap *clib_bitmap_init (uint64_t size)
 /* Creates an empty bitmap with @size integers */
 {
-  clib_bitmap *temp = (clib_bitmap *) calloc(1, sizeof(clib_bitmap));
-  temp->map = (int *) calloc(size, sizeof(int));
+  clib_bitmap *temp = (clib_bitmap *) calloc (1, sizeof(clib_bitmap));
+  temp->map = (int *) calloc (size, sizeof(int));
   temp->size = size;
   temp->get = &bitmap_get;
   temp->set = &bitmap_set;
@@ -27,26 +27,26 @@ clib_bitmap *clib_bitmap_init (uint64_t size)
 void clib_bitmap_free (clib_bitmap *bitmap)
 /* Destroys the @bitmap */
 {
-  free(bitmap->map);
-  free(bitmap);
+  free (bitmap->map);
+  free (bitmap);
 }
 
 static bool bitmap_get (clib_bitmap *self, int n)
 /* Returns the value of the @n'th bit of the bitmap */
 {
-  return get(self->map[n/WORD_BIT], n%WORD_BIT);
+  return get (self->map[n/CLIB_WORD_BIT], n%CLIB_WORD_BIT);
 }
 
 static void bitmap_set (clib_bitmap *self, int n)
 /* Sets the @n'th bit of the bitmap to true */
 {
-  set(&self->map[n/WORD_BIT], n%WORD_BIT);
+  set (&self->map[n/CLIB_WORD_BIT], n%CLIB_WORD_BIT);
 }
 
 static void bitmap_reset (clib_bitmap *self, int n)
 /* Sets the @n'th bit of the bitmap to false */
 {
-  reset(&self->map[n/WORD_BIT], n%WORD_BIT);
+  reset (&self->map[n/CLIB_WORD_BIT], n%CLIB_WORD_BIT);
 }
 
 static bool get (int byte, int bit)

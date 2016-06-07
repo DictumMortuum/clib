@@ -1,42 +1,124 @@
 #include "block.h"
-#include "stream.h"
-#include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
-int block_allocate (char **bufferPtr, const unsigned long bufferSize, const void *objPtr, const unsigned int objSize)
-/* creates an empty block and initializes it */
-/* if the second argument is a valid pointer, it copies it into the new block */
+static bool block_get (void *buffer, size_t size, size_t count, FILE *stream);
+static bool block_geti (void *buffer, size_t size, size_t count, FILE *stream);
+static bool block_set (const void *buffer, size_t size, size_t count, FILE *stream);
+static bool block_seti (const void *buffer, size_t size, size_t count, FILE *stream);
+
+clib_block *clib_block_init (void)
 {
-  if ((*bufferPtr = (char *) malloc (sizeof (char) * bufferSize)) == NULL) {
-    return 0;
-  }
-
-  memset (*bufferPtr, 0, sizeof (char) * bufferSize);
-
-  if (objPtr != NULL) {
-    memcpy (*bufferPtr, objPtr, objSize);
-  }
-
-  return 1;
+  clib_block *temp = (clib_block *) calloc (1, sizeof(clib_block));
+  temp->get = &block_get;
+  temp->geti = &block_geti;
+  temp->set = &block_set;
+  temp->seti = &block_seti;
+  return temp;
 }
 
-int block_read (FILE *stream, char *buffer, const unsigned int n, const unsigned int size)
-/* Read the n'th block of stream into buffer */
+void clib_block_free (clib_block *block)
 {
-  fseek (stream, n * size, SEEK_SET);
-  if (fread (buffer, 1, sizeof(char) * size, stream) != (sizeof(char) * size))
-    return 0;
-  else
-    return 1;
+  free (block);
 }
 
-int block_write (FILE *stream, const char *buffer, const unsigned int n, const unsigned int size)
-/* Write buffer as the n'th block of stream */
+static bool block_get (void *buffer, size_t size, size_t count, FILE *stream)
+/* Reads from @stream the @count'th object of @size and copies it into @buffer */
+/* The file pointer will be modified after this operation */
 {
-  fseek (stream, n * size, SEEK_SET);
-  if (fwrite (buffer, sizeof(char) * size, 1, stream) == 1)
-    return 0;
-  else
-    return 1;
+  if(fseek (stream, (long)(count * size), SEEK_SET) != 0) {
+    return false;
+  }
+
+  size_t retval = fread (buffer, size, 1, stream);
+
+  if(retval != count) {
+    if (feof (stream)) {
+      return true;
+    }
+    if (ferror (stream)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+static bool block_geti (void *buffer, size_t size, size_t count, FILE *stream)
+/* Reads from @stream the @count'th object of @size and copies it into @buffer */
+/* The file pointer is reset after this operation to its original position */
+{
+  long int pos = ftell (stream);
+
+  if (pos == -1L) {
+    return false;
+  }
+
+  if (fseek (stream, (long)(count * size), SEEK_SET) != 0) {
+    return false;
+  }
+
+  size_t retval = fread (buffer, size, 1, stream);
+
+  if (retval != count) {
+    if (ferror (stream)) {
+      return false;
+    }
+  }
+
+  if (fseek (stream, pos, SEEK_SET) != 0) {
+    return false;
+  }
+
+  return true;
+}
+
+static bool block_set (const void *buffer, size_t size, size_t count, FILE *stream)
+/* Writes into @stream the @buffer as its @count'th object of @size */
+/* The file pointer will be modified after this operation */
+{
+  if(fseek (stream, (long)(count * size), SEEK_SET) != 0) {
+    return false;
+  }
+
+  size_t retval = fwrite (buffer, size, 1, stream);
+
+  if(retval != count) {
+    if (feof (stream)) {
+      return true;
+    }
+    if (ferror (stream)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+static bool block_seti (const void *buffer, size_t size, size_t count, FILE *stream)
+/* Writes into @stream the @buffer as its @count'th object of @size */
+/* The file pointer is reset after this operation to its original position */
+{
+  long int pos = ftell (stream);
+
+  if (pos == -1L) {
+    return false;
+  }
+
+  if (fseek (stream, (long)(count * size), SEEK_SET) != 0) {
+    return false;
+  }
+
+  size_t retval = fwrite (buffer, size, 1, stream);
+
+  if (retval != count) {
+    if (ferror (stream)) {
+      return false;
+    }
+  }
+
+  if (fseek (stream, pos, SEEK_SET) != 0) {
+    return false;
+  }
+
+  return true;
 }

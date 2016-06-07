@@ -8,7 +8,7 @@ int main(void) {
   bitmap->set(bitmap, 10);
   printf("%d\n", bitmap->get(bitmap, 10));
   int temp = 34;
-  printf("%d %d %d %ld\n", bitmap->get(bitmap, temp), WORD_BIT, INT_MAX, sizeof(int));
+  printf("%d %d %d %ld\n", bitmap->get(bitmap, temp), CLIB_WORD_BIT, INT_MAX, sizeof(int));
   bitmap->set(bitmap, temp);
   /* this should print 4, if int = 4 bytes */
   printf("%d\n", bitmap->map[1]);
